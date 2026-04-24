@@ -1,0 +1,4 @@
+- [x] `database.py` 中包含 `status`, `raw_text`, `extracted_json`, `audit_report` 字段。
+- [x] `database.py` 中实现了 `update_session_status` 函数。
+- [x] `main.py` 没有被修改。
+- [x] `database.py` 没有语法错误，可以被成功导入。
