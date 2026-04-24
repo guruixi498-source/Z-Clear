@@ -14,6 +14,8 @@ from agents.extractor import extract_info
 load_dotenv()
 
 # Create the database tables
+# Drop existing tables to ensure schema is up-to-date during development
+database.Base.metadata.drop_all(bind=database.engine)
 database.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI(title="Z-Clear Trade Compliance Middleware")
