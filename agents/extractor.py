@@ -42,14 +42,16 @@ def extract_info(text: str) -> tuple[ExtractedData, str]:
     """
     
     try:
+        print("开始调用 ILMU API...")
         response = client.chat.completions.create(
-            model="ilmu-glm-5.1",
+            model="nemo-super",
             messages=[
                 {"role": "system", "content": "You are a data extraction assistant. Always output valid JSON."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.1
         )
+        print("ILMU API 返回结果成功！")
         
         content = response.choices[0].message.content
         # Remove potential markdown formatting
