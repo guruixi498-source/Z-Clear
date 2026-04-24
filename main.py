@@ -1,4 +1,6 @@
 from fastapi import FastAPI, Depends
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from dotenv import load_dotenv
@@ -14,6 +16,13 @@ load_dotenv()
 database.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI(title="Z-Clear Trade Compliance Middleware")
+
+# Mount static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+@app.get("/")
+def read_root():
+    return FileResponse("static/index.html")
 
 # Dependency
 def get_db():
