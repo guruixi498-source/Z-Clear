@@ -1,5 +1,6 @@
 import os
 import json
+import re
 from typing import Optional
 from pydantic import BaseModel, Field
 from openai import OpenAI
@@ -46,7 +47,7 @@ def extract_info(text: str) -> tuple[ExtractedData, str]:
         response = client.chat.completions.create(
             model="nemo-super",
             messages=[
-                {"role": "system", "content": "You are a data extraction assistant. Always output valid JSON."},
+                {"role": "system", "content": "You are a data extraction assistant. Output ONLY raw JSON. No markdown, no backticks, no explanations."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.1
@@ -54,9 +55,15 @@ def extract_info(text: str) -> tuple[ExtractedData, str]:
         print("ILMU API 返回结果成功！")
         
         content = response.choices[0].message.content
-        # Remove potential markdown formatting
-        content = content.replace("```json", "").replace("```", "").strip()
-        data_dict = json.loads(content)
+        
+        # Extract JSON using regex
+        match = re.search(r'\{.*\}', content, re.DOTALL)
+        if match:
+            clean_json = match.group(0)
+            data_dict = json.loads(clean_json)
+        else:
+            data_dict = json.loads(content)
+            
         extracted = ExtractedData(**data_dict)
         
         # Check for missing critical fields (item_name, hs_code, weight)
