@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Z-Clear Trade Compliance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen text-gray-800">
+    <div class="max-w-4xl mx-auto p-6">
+        <!-- Header & Language Selection -->
+        <header class="flex justify-between items-center py-6 mb-8 border-b border-gray-200">
+            <h1 id="app-title" class="text-3xl font-bold text-indigo-600 tracking-tight">Z-Clear Trade Compliance</h1>
+            <div class="relative">
+                <select id="lang-select" onchange="changeLanguage(this.value)" class="appearance-none bg-white border border-gray-300 text-gray-700 py-2 pl-4 pr-10 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer">
+                    <option value="en">English</option>
+                    <option value="zh">中文</option>
+                    <option value="ms">Bahasa Melayu</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+            <div class="mb-6">
+                <label id="input-label" for="invoice-text" class="block text-sm font-semibold text-gray-700 mb-2">Invoice Text</label>
+                <textarea id="invoice-text" rows="8" class="w-full border border-gray-300 rounded-lg p-4 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-800 placeholder-gray-400 transition" placeholder="Paste unstructured invoice text here..."></textarea>
+            </div>
+            
+            <button id="submit-btn" onclick="processInvoice()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-200 flex justify-center items-center group">
+                <span id="btn-text">Extract Information</span>
+                <svg id="loading-spinner" class="animate-spin ml-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </button>
+
+            <!-- Results Section -->
+            <div id="result-section" class="mt-10 hidden opacity-0 transition-opacity duration-300">
+                <h2 id="result-title" class="text-xl font-bold mb-5 text-gray-900 border-b pb-2">Extraction Results</h2>
+                <div class="bg-gray-50 rounded-xl p-6 border border-gray-200 shadow-inner">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                            <span id="lbl-item" class="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-1">Item Name</span>
+                            <span id="res-item" class="font-medium text-gray-900 text-lg">-</span>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                            <span id="lbl-hscode" class="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-1">HS Code</span>
+                            <span id="res-hscode" class="font-medium text-gray-900 text-lg">-</span>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                            <span id="lbl-weight" class="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-1">Weight</span>
+                            <span id="res-weight" class="font-medium text-gray-900 text-lg">-</span>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex flex-col justify-center items-start">
+                            <span id="lbl-status" class="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">Status</span>
+                            <span id="res-status" data-status="" class="font-semibold px-3 py-1 rounded-full text-sm inline-block">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const translations = {
+            en: {
+                title: "Z-Clear Trade Compliance",
+                inputLabel: "Invoice Text",
+                placeholder: "Paste unstructured invoice text here...",
+                submitBtn: "Extract Information",
+                loadingBtn: "Processing...",
+                resultTitle: "Extraction Results",
+                lblItem: "Item Name",
+                lblHsCode: "HS Code",
+                lblWeight: "Weight",
+                lblStatus: "Status",
+                statusCompleted: "COMPLETED",
+                statusIncomplete: "INCOMPLETE"
+            },
+            zh: {
+                title: "Z-Clear 贸易合规系统",
+                inputLabel: "发票文本",
+                placeholder: "在此处粘贴非结构化发票文本...",
+                submitBtn: "提取信息",
+                loadingBtn: "处理中...",
+                resultTitle: "提取结果",
+                lblItem: "品名 (Item Name)",
+                lblHsCode: "海关编码 (HS Code)",
+                lblWeight: "重量 (Weight)",
+                lblStatus: "状态",
+                statusCompleted: "已完成",
+                statusIncomplete: "不完整"
+            },
+            ms: {
+                title: "Pematuhan Perdagangan Z-Clear",
+                inputLabel: "Teks Invois",
+                placeholder: "Tampal teks invois tidak berstruktur di sini...",
+                submitBtn: "Ekstrak Maklumat",
+                loadingBtn: "Sedang diproses...",
+                resultTitle: "Hasil Pengekstrakan",
+                lblItem: "Nama Barang",
+                lblHsCode: "Kod HS",
+                lblWeight: "Berat",
+                lblStatus: "Status",
+                statusCompleted: "SELESAI",
+                statusIncomplete: "TIDAK LENGKAP"
+            }
+        };
+
+        let currentLang = 'en';
+
+        function updateStatusUI(statusData) {
+            const t = translations[currentLang];
+            const statusEl = document.getElementById('res-status');
+            
+            if (statusData === 'COMPLETED') {
+                statusEl.innerText = t.statusCompleted;
+                statusEl.className = 'font-semibold px-3 py-1 rounded-full text-sm inline-block bg-green-100 text-green-800 border border-green-200';
+            } else if (statusData === 'INCOMPLETE') {
+                statusEl.innerText = t.statusIncomplete;
+                statusEl.className = 'font-semibold px-3 py-1 rounded-full text-sm inline-block bg-red-100 text-red-800 border border-red-200';
+            } else {
+                statusEl.innerText = '-';
+                statusEl.className = 'font-semibold px-3 py-1 rounded-full text-sm inline-block bg-gray-100 text-gray-800';
+            }
+        }
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            const t = translations[lang];
+            
+            document.title = t.title;
+            document.getElementById('app-title').innerText = t.title;
+            document.getElementById('input-label').innerText = t.inputLabel;
+            document.getElementById('invoice-text').placeholder = t.placeholder;
+            
+            // Handle button text specifically to not overwrite spinner when not loading
+            const spinner = document.getElementById('loading-spinner');
+            if (spinner.classList.contains('hidden')) {
+                document.getElementById('btn-text').innerText = t.submitBtn;
+            } else {
+                document.getElementById('btn-text').innerText = t.loadingBtn;
+            }
+
+            document.getElementById('result-title').innerText = t.resultTitle;
+            document.getElementById('lbl-item').innerText = t.lblItem;
+            document.getElementById('lbl-hscode').innerText = t.lblHsCode;
+            document.getElementById('lbl-weight').innerText = t.lblWeight;
+            document.getElementById('lbl-status').innerText = t.lblStatus;
+
+            // Re-render the status badge to update the translation
+            const currentStatus = document.getElementById('res-status').getAttribute('data-status');
+            if (currentStatus) {
+                updateStatusUI(currentStatus);
+            }
+        }
+
+        async function processInvoice() {
+            const text = document.getElementById('invoice-text').value;
+            if (!text.trim()) return;
+
+            const t = translations[currentLang];
+            const btnText = document.getElementById('btn-text');
+            const spinner = document.getElementById('loading-spinner');
+            const btn = document.getElementById('submit-btn');
+            const resultSection = document.getElementById('result-section');
+
+            // UI Loading state
+            btnText.innerText = t.loadingBtn;
+            spinner.classList.remove('hidden');
+            btn.disabled = true;
+            btn.classList.add('opacity-75', 'cursor-not-allowed');
+            
+            // Hide result section smoothly
+            resultSection.classList.remove('opacity-100');
+            resultSection.classList.add('opacity-0');
+            setTimeout(() => { resultSection.classList.add('hidden'); }, 300);
+
+            // Generate a random session ID for this request
+            const sessionId = 'session_' + Math.random().toString(36).substr(2, 9);
+
+            try {
+                const response = await fetch('/process', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: sessionId, text: text })
+                });
+
+                if (!response.ok) throw new Error('Server returned ' + response.status);
+
+                const data = await response.json();
+                
+                // Display results
+                document.getElementById('res-item').innerText = data.progress.item_name || 'N/A';
+                document.getElementById('res-hscode').innerText = data.progress.hs_code || 'N/A';
+                document.getElementById('res-weight').innerText = data.progress.weight || 'N/A';
+                
+                const statusEl = document.getElementById('res-status');
+                statusEl.setAttribute('data-status', data.status);
+                updateStatusUI(data.status);
+
+                // Show result section smoothly
+                setTimeout(() => {
+                    resultSection.classList.remove('hidden');
+                    // slight delay to allow display:block to apply before changing opacity
+                    setTimeout(() => {
+                        resultSection.classList.remove('opacity-0');
+                        resultSection.classList.add('opacity-100');
+                    }, 50);
+                }, 300);
+
+            } catch (error) {
+                alert('Error processing invoice: ' + error.message);
+            } finally {
+                // Reset UI state
+                btnText.innerText = t.submitBtn;
+                spinner.classList.add('hidden');
+                btn.disabled = false;
+                btn.classList.remove('opacity-75', 'cursor-not-allowed');
+            }
+        }
+
+        // Initialize UI with default language on load
+        window.onload = () => {
+            changeLanguage(document.getElementById('lang-select').value);
+        };
+    </script>
+</body>
+</html>
