@@ -45,7 +45,7 @@ def extract_info(text: str) -> tuple[ExtractedData, str]:
     try:
         print("开始调用 ILMU API...")
         response = client.chat.completions.create(
-            model="nemo-super",
+            model="ilmu-glm-5.1",
             messages=[
                 {"role": "system", "content": "You are a data extraction assistant. Output ONLY raw JSON. No markdown, no backticks, no explanations."},
                 {"role": "user", "content": prompt}
