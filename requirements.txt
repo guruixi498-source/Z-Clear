@@ -2,4 +2,4 @@ fastapi
 uvicorn
 sqlalchemy
 python-dotenv
-zhipuai
+openai

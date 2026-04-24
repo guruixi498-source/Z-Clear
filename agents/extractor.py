@@ -2,7 +2,7 @@ import os
 import json
 from typing import Optional
 from pydantic import BaseModel, Field
-from zhipuai import ZhipuAI
+from openai import OpenAI
 from dotenv import load_dotenv
 from sqlalchemy.orm import Session
 
@@ -20,11 +20,13 @@ class ExtractedData(BaseModel):
 
 def extract_info(text: str) -> tuple[ExtractedData, str]:
     """
-    Extracts key information from text using ZhipuAI.
+    Extracts key information from text using OpenAI.
     Returns the extracted data and the status (COMPLETED or INCOMPLETE).
     """
-    api_key = os.getenv("ZHIPU_API_KEY")
-    client = ZhipuAI(api_key=api_key)
+    client = OpenAI(
+        api_key=os.getenv("ILMU_API_KEY"), 
+        base_url=os.getenv("ILMU_API_BASE")
+    )
     
     prompt = f"""
     Please extract the following information from the text below:
@@ -41,7 +43,7 @@ def extract_info(text: str) -> tuple[ExtractedData, str]:
     
     try:
         response = client.chat.completions.create(
-            model="glm-4",
+            model="ilmu-glm-5.1",
             messages=[
                 {"role": "system", "content": "You are a data extraction assistant. Always output valid JSON."},
                 {"role": "user", "content": prompt}
