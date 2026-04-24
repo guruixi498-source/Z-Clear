@@ -43,30 +43,29 @@ def extract_info(text: str) -> tuple[ExtractedData, str]:
     """
     
     try:
-        print("开始调用 ILMU API...")
+        print("🚀 正在请求 ILMU API...")
         response = client.chat.completions.create(
             model="ilmu-glm-5.1",
             messages=[
-                {"role": "system", "content": "You are a data extraction assistant. Output ONLY raw JSON. No markdown, no backticks, no explanations."},
+                {"role": "system", "content": "You are a data extraction assistant. Output ONLY valid JSON. No markdown formatting, no backticks, no conversational text. Schema: {\"item_name\": \"str\", \"hs_code\": \"str\", \"weight\": \"str\"}"},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.1
         )
-        print("ILMU API 返回结果成功！")
-        
         content = response.choices[0].message.content
-        
-        # Extract JSON using regex
+        print("📦 API 原始返回内容:", content)
+
+        # 使用正则强行提取 JSON 括号内的内容，防止模型废话
         match = re.search(r'\{.*\}', content, re.DOTALL)
         if match:
             clean_json = match.group(0)
-            data_dict = json.loads(clean_json)
         else:
-            data_dict = json.loads(content)
-            
+            clean_json = content
+        
+        data_dict = json.loads(clean_json)
         extracted = ExtractedData(**data_dict)
         
-        # Check for missing critical fields (item_name, hs_code, weight)
+        # 检查是否缺失
         if not extracted.item_name or not extracted.hs_code or not extracted.weight:
             status = "INCOMPLETE"
         else:
@@ -75,8 +74,9 @@ def extract_info(text: str) -> tuple[ExtractedData, str]:
         return extracted, status
         
     except Exception as e:
-        print(f"Extraction failed: {e}")
-        return ExtractedData(), "INCOMPLETE"
+        error_msg = str(e)
+        print(f"❌ 提取失败: {error_msg}")
+        return ExtractedData(item_name="[解析失败]", hs_code=error_msg[:30], weight="请看控制台日志"), "INCOMPLETE"
 
 
 def process_and_store_document(session_id: str, text: str, db: Session) -> dict:
