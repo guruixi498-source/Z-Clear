@@ -117,19 +117,32 @@
 
         let currentLang = 'en';
 
-        function updateStatusUI(statusData) {
+        function updateStatusUI(statusData, displayStatusObj) {
             const t = translations[currentLang];
             const statusEl = document.getElementById('res-status');
             
+            // If the server provides a translated display string, use it
+            let displayText = '-';
+            if (displayStatusObj && displayStatusObj[currentLang]) {
+                displayText = displayStatusObj[currentLang];
+            } else if (statusData === 'COMPLETED') {
+                displayText = t.statusCompleted;
+            } else if (statusData === 'INCOMPLETE') {
+                displayText = t.statusIncomplete;
+            } else {
+                displayText = statusData;
+            }
+
+            statusEl.innerText = displayText;
+            
             if (statusData === 'COMPLETED') {
-                statusEl.innerText = t.statusCompleted;
                 statusEl.className = 'font-semibold px-3 py-1 rounded-full text-sm inline-block bg-green-100 text-green-800 border border-green-200';
             } else if (statusData === 'INCOMPLETE') {
-                statusEl.innerText = t.statusIncomplete;
                 statusEl.className = 'font-semibold px-3 py-1 rounded-full text-sm inline-block bg-red-100 text-red-800 border border-red-200';
+            } else if (statusData === 'ERROR') {
+                statusEl.className = 'font-semibold px-3 py-1 rounded-full text-sm inline-block bg-red-600 text-white border border-red-700';
             } else {
-                statusEl.innerText = '-';
-                statusEl.className = 'font-semibold px-3 py-1 rounded-full text-sm inline-block bg-gray-100 text-gray-800';
+                statusEl.className = 'font-semibold px-3 py-1 rounded-full text-sm inline-block bg-blue-100 text-blue-800 border border-blue-200';
             }
         }
 
@@ -158,8 +171,13 @@
 
             // Re-render the status badge to update the translation
             const currentStatus = document.getElementById('res-status').getAttribute('data-status');
+            const displayStatusRaw = document.getElementById('res-status').getAttribute('data-display');
             if (currentStatus) {
-                updateStatusUI(currentStatus);
+                let displayObj = null;
+                try {
+                    if (displayStatusRaw) displayObj = JSON.parse(displayStatusRaw);
+                } catch(e) {}
+                updateStatusUI(currentStatus, displayObj);
             }
         }
 
@@ -188,7 +206,7 @@
             const sessionId = 'session_' + Math.random().toString(36).substr(2, 9);
 
             try {
-                const response = await fetch('/process', {
+                const response = await fetch('/extract', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ session_id: sessionId, text: text })
@@ -205,7 +223,10 @@
                 
                 const statusEl = document.getElementById('res-status');
                 statusEl.setAttribute('data-status', data.status);
-                updateStatusUI(data.status);
+                if (data.display_status) {
+                    statusEl.setAttribute('data-display', JSON.stringify(data.display_status));
+                }
+                updateStatusUI(data.status, data.display_status);
 
                 // Show result section smoothly
                 setTimeout(() => {
