@@ -91,10 +91,10 @@ def extract_info(text: str) -> tuple[ExtractedData, str]:
         hs_code = ""
         weight = ""
         
-        # 简单的正则匹配发票内容
-        item_match = re.search(r"Item Description:\s*(.*)", text, re.IGNORECASE)
-        hs_match = re.search(r"HS Code:\s*(.*)", text, re.IGNORECASE)
-        weight_match = re.search(r"(?:Gross Weight|Weight):\s*(.*)", text, re.IGNORECASE)
+        # 简单的正则匹配发票内容，增强匹配规则以支持您的样例
+        item_match = re.search(r"(?:Item(?: Description)?):\s*(.*)", text, re.IGNORECASE)
+        hs_match = re.search(r"HS(?: Code)?:\s*(.*)", text, re.IGNORECASE)
+        weight_match = re.search(r"(?:Wt|Gross Weight|Net Weight|Weight):\s*(.*)", text, re.IGNORECASE)
         
         if item_match:
             item_name = item_match.group(1).strip()
