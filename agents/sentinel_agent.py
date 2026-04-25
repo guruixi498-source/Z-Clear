@@ -6,7 +6,7 @@ import database
 
 def get_glm_client():
     return OpenAI(
-        api_key=os.getenv("ILMU_API_KEY", "dummy-key-for-test"), 
+        api_key=os.getenv("ILMU_API_KEY", "dummy-key-for-test"),
         base_url=os.getenv("ILMU_API_BASE", "https://dummy-base.com")
     )
 

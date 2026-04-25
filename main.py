@@ -136,14 +136,7 @@ class RetrieveRequest(BaseModel):
 def retrieve_regulations(request: RetrieveRequest, db: Session = Depends(get_db)):
     state = db.query(database.SessionState).filter(database.SessionState.session_id == request.session_id).first()
     if not state:
-        state = database.SessionState(
-            session_id=request.session_id, 
-            status="RECEIVED", 
-            raw_text="Dummy for isolated sentinel test"
-        )
-        db.add(state)
-        db.commit()
-        db.refresh(state)
+        raise HTTPException(status_code=404, detail="Session not found")
     
     agent = SentinelAgent(db)
     try:
@@ -158,7 +151,6 @@ def retrieve_regulations(request: RetrieveRequest, db: Session = Depends(get_db)
         database.update_session_status(db, request.session_id, "AUDITING")
         db.refresh(state)
         
-        # Ensure we always return a 200 HTTP code even if the business logic failed inside execute
         return {
             "status": "success",
             "session_id": request.session_id,
@@ -170,7 +162,58 @@ def retrieve_regulations(request: RetrieveRequest, db: Session = Depends(get_db)
         state.error_log = error_msg
         database.update_session_status(db, request.session_id, "ERROR")
         db.refresh(state)
-        # Returning HTTP 200 with standard JSON format containing error status
+        return {
+            "status": "error",
+            "session_id": request.session_id,
+            "error_log": error_msg
+        }
+
+from agents.sentinel_agent import SentinelAgent
+
+class RetrieveRequest(BaseModel):
+    session_id: str
+    hs_code: str
+    product_name: str
+    import_country: str
+    export_country: str
+
+@app.post("/sentinel/retrieve")
+def retrieve_regulations(request: RetrieveRequest, db: Session = Depends(get_db)):
+    state = db.query(database.SessionState).filter(database.SessionState.session_id == request.session_id).first()
+    if not state:
+        state = database.SessionState(
+            session_id=request.session_id, 
+            status="RECEIVED", 
+            raw_text="Dummy for isolated sentinel test"
+        )
+        db.add(state)
+        db.commit()
+        db.refresh(state)
+    
+    try:
+        agent = SentinelAgent(db)
+        result = agent.execute(
+            hs_code=request.hs_code,
+            product_name=request.product_name,
+            import_country=request.import_country,
+            export_country=request.export_country
+        )
+        
+        state.regulation_context = result["compliance_context"]
+        database.update_session_status(db, request.session_id, "AUDITING")
+        db.refresh(state)
+        
+        return {
+            "status": "success",
+            "session_id": request.session_id,
+            "regulation_context": result["compliance_context"],
+            "retrieved_regulations": result["retrieved_regulations"]
+        }
+    except Exception as e:
+        error_msg = str(e)
+        state.error_log = error_msg
+        database.update_session_status(db, request.session_id, "ERROR")
+        db.refresh(state)
         return {
             "status": "error",
             "session_id": request.session_id,
