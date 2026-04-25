@@ -1,6 +1,8 @@
 # Z-Clear
 UMHackathon 2026 (Domain 1) | Z-Clear: A Sovereign Autonomous Trade Compliance Middleware designed to automate unstructured document auditing and reduce trade delays using Z.ai's GLM.
 
+🎥 **Demo Video:** [https://drive.google.com/file/d/1daulKDFL0OpkRTTyUwDFxpbITLLCjyUK/view?usp=drive_link](https://drive.google.com/file/d/1daulKDFL0OpkRTTyUwDFxpbITLLCjyUK/view?usp=drive_link)
+
 ---
 
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
@@ -9,7 +11,7 @@ UMHackathon 2026 (Domain 1) | Z-Clear: A Sovereign Autonomous Trade Compliance M
 ![AI](https://img.shields.io/badge/Powered%20by-ILMU%20GLM--5.1-orange.svg)
 
 > **UMHackathon 2026 (Domain 1)** | A Sovereign Autonomous Trade Compliance Middleware designed to automate unstructured document auditing and reduce trade delays using Large Language Models.
-> 
+>
 > **马大黑客松 2026 (赛道一)** | 一款主权自主的贸易合规中间件，旨在利用大语言模型实现非结构化单据的自动化审计，并显著减少跨境贸易延迟。
 
 [English](#english) | [中文](#chinese)
