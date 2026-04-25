@@ -24,9 +24,18 @@ def extract_info(text: str) -> tuple[ExtractedData, str]:
     Extracts key information from text using OpenAI.
     Returns the extracted data and the status (COMPLETED or INCOMPLETE).
     """
+    # Fallback dummy keys if not set in environment
+    api_key = os.getenv("ILMU_API_KEY")
+    if not api_key or api_key == "your_key_here":
+        api_key = "dummy_key_for_development"
+        
+    base_url = os.getenv("ILMU_API_BASE")
+    if not base_url:
+        base_url = "https://api.example.com/v1"
+
     client = OpenAI(
-        api_key=os.getenv("ILMU_API_KEY"), 
-        base_url=os.getenv("ILMU_API_BASE")
+        api_key=api_key,
+        base_url=base_url
     )
     
     prompt = f"""
