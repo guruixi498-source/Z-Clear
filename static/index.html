@@ -10,7 +10,7 @@
         body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen text-gray-800">
+<body class="bg-gray-50 min-h-screen text-gray-800 pb-12">
     <div class="max-w-4xl mx-auto p-6">
         <!-- Header & Language Selection -->
         <header class="flex justify-between items-center py-6 mb-8 border-b border-gray-200">
@@ -28,7 +28,7 @@
         </header>
 
         <!-- Main Content -->
-        <main class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+        <main class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 mb-8">
             <div class="mb-6">
                 <label id="input-label" for="invoice-text" class="block text-sm font-semibold text-gray-700 mb-2">Invoice Text</label>
                 <textarea id="invoice-text" rows="8" class="w-full border border-gray-300 rounded-lg p-4 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-800 placeholder-gray-400 transition" placeholder="Paste unstructured invoice text here..."></textarea>
@@ -65,8 +65,78 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Compliance Policy Match Section -->
+                <div id="compliance-section" class="mt-6 hidden">
+                    <h3 id="compliance-title" class="text-lg font-bold mb-4 text-indigo-700 border-b pb-2">Compliance Policy Match</h3>
+                    <div class="bg-indigo-50 rounded-xl p-6 border border-indigo-100 shadow-sm">
+                        <!-- Context -->
+                        <div class="mb-4">
+                            <span id="lbl-compliance-ctx" class="text-xs font-semibold text-indigo-500 uppercase tracking-wider block mb-2">Compliance Context</span>
+                            <p id="res-compliance-ctx" class="text-sm text-gray-800 whitespace-pre-wrap bg-white p-4 rounded border border-indigo-50">-</p>
+                        </div>
+                        <!-- Retrieved Regs -->
+                        <div>
+                            <span id="lbl-retrieved-regs" class="text-xs font-semibold text-indigo-500 uppercase tracking-wider block mb-2">Retrieved Regulations</span>
+                            <div id="res-retrieved-regs" class="space-y-3">
+                                <!-- Dynamic regs go here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Error Log Section -->
+                <div id="error-section" class="mt-4 hidden bg-red-50 rounded-xl p-6 border border-red-100 shadow-sm">
+                    <span id="lbl-error-log" class="text-xs font-semibold text-red-500 uppercase tracking-wider block mb-2">Error Log</span>
+                    <p id="res-error-log" class="text-sm text-red-800 whitespace-pre-wrap bg-white p-4 rounded border border-red-50">-</p>
+                </div>
             </div>
         </main>
+
+        <!-- Manual Retrieval Section -->
+        <section class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+            <h2 id="manual-title" class="text-xl font-bold mb-5 text-gray-900 border-b pb-2">Manual Compliance Retrieval</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label id="lbl-manual-item" class="block text-sm font-semibold text-gray-700 mb-1">Item Name *</label>
+                    <input type="text" id="manual-item" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g. Steel Pipe">
+                </div>
+                <div>
+                    <label id="lbl-manual-hscode" class="block text-sm font-semibold text-gray-700 mb-1">HS Code *</label>
+                    <input type="text" id="manual-hscode" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g. 7304">
+                </div>
+                <div>
+                    <label id="lbl-manual-import" class="block text-sm font-semibold text-gray-700 mb-1">Import Country</label>
+                    <input type="text" id="manual-import" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g. US">
+                </div>
+                <div>
+                    <label id="lbl-manual-export" class="block text-sm font-semibold text-gray-700 mb-1">Export Country</label>
+                    <input type="text" id="manual-export" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g. CN">
+                </div>
+            </div>
+            
+            <button id="manual-submit-btn" onclick="manualRetrieve()" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-200 flex justify-center items-center group">
+                <span id="manual-btn-text">Retrieve Compliance</span>
+                <svg id="manual-loading-spinner" class="animate-spin ml-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </button>
+
+            <!-- Manual Results -->
+            <div id="manual-result-section" class="mt-6 hidden">
+                <div class="bg-teal-50 rounded-xl p-6 border border-teal-100 shadow-sm">
+                    <div class="mb-4">
+                        <span id="lbl-manual-ctx" class="text-xs font-semibold text-teal-600 uppercase tracking-wider block mb-2">Compliance Context</span>
+                        <p id="manual-res-ctx" class="text-sm text-gray-800 whitespace-pre-wrap bg-white p-4 rounded border border-teal-50">-</p>
+                    </div>
+                    <div>
+                        <span id="lbl-manual-regs" class="text-xs font-semibold text-teal-600 uppercase tracking-wider block mb-2">Retrieved Regulations</span>
+                        <div id="manual-res-regs" class="space-y-3"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 
     <script>
@@ -83,7 +153,23 @@
                 lblWeight: "Weight",
                 lblStatus: "Status",
                 statusCompleted: "COMPLETED",
-                statusIncomplete: "INCOMPLETE"
+                statusIncomplete: "INCOMPLETE",
+                statusAuditing: "AUDITING",
+                statusError: "ERROR",
+                statusRetrieving: "Retrieving...",
+                complianceTitle: "Compliance Policy Match",
+                lblComplianceCtx: "Compliance Context",
+                lblRetrievedRegs: "Retrieved Regulations",
+                lblErrorLog: "Error Log",
+                manualTitle: "Manual Compliance Retrieval",
+                lblManualItem: "Item Name *",
+                lblManualHsCode: "HS Code *",
+                lblManualImport: "Import Country",
+                lblManualExport: "Export Country",
+                btnRetrieve: "Retrieve Compliance",
+                msgRetrieving: "Retrieving...",
+                lblCountry: "Country",
+                msgNoMatch: "No matching regulations found."
             },
             zh: {
                 title: "Z-Clear 贸易合规系统",
@@ -97,7 +183,23 @@
                 lblWeight: "重量 (Weight)",
                 lblStatus: "状态",
                 statusCompleted: "已完成",
-                statusIncomplete: "不完整"
+                statusIncomplete: "不完整",
+                statusAuditing: "审计中",
+                statusError: "处理异常",
+                statusRetrieving: "检索中...",
+                complianceTitle: "合规政策匹配结果",
+                lblComplianceCtx: "合规上下文",
+                lblRetrievedRegs: "检索到的法规",
+                lblErrorLog: "错误日志",
+                manualTitle: "合规政策手动检索",
+                lblManualItem: "商品名称 *",
+                lblManualHsCode: "HS编码 *",
+                lblManualImport: "进口国",
+                lblManualExport: "出口国",
+                btnRetrieve: "检索合规政策",
+                msgRetrieving: "检索中...",
+                lblCountry: "适用国家",
+                msgNoMatch: "未检索到匹配的海关合规政策或RCEP规则。"
             },
             ms: {
                 title: "Pematuhan Perdagangan Z-Clear",
@@ -111,7 +213,23 @@
                 lblWeight: "Berat",
                 lblStatus: "Status",
                 statusCompleted: "SELESAI",
-                statusIncomplete: "TIDAK LENGKAP"
+                statusIncomplete: "TIDAK LENGKAP",
+                statusAuditing: "SEDANG DIAUDIT",
+                statusError: "RALAT",
+                statusRetrieving: "Sedang mengambil...",
+                complianceTitle: "Padanan Dasar Pematuhan",
+                lblComplianceCtx: "Konteks Pematuhan",
+                lblRetrievedRegs: "Peraturan yang Diperoleh",
+                lblErrorLog: "Log Ralat",
+                manualTitle: "Pengambilan Pematuhan Manual",
+                lblManualItem: "Nama Barang *",
+                lblManualHsCode: "Kod HS *",
+                lblManualImport: "Negara Import",
+                lblManualExport: "Negara Eksport",
+                btnRetrieve: "Ambil Pematuhan",
+                msgRetrieving: "Sedang mengambil...",
+                lblCountry: "Negara",
+                msgNoMatch: "Tiada peraturan yang sepadan ditemui."
             }
         };
 
@@ -129,6 +247,12 @@
                 displayText = t.statusCompleted;
             } else if (statusData === 'INCOMPLETE') {
                 displayText = t.statusIncomplete;
+            } else if (statusData === 'AUDITING') {
+                displayText = t.statusAuditing;
+            } else if (statusData === 'ERROR') {
+                displayText = t.statusError;
+            } else if (statusData === 'RETRIEVING') {
+                displayText = t.statusRetrieving;
             } else {
                 displayText = statusData;
             }
@@ -138,11 +262,15 @@
             if (statusData === 'COMPLETED') {
                 statusEl.className = 'font-semibold px-3 py-1 rounded-full text-sm inline-block bg-green-100 text-green-800 border border-green-200';
             } else if (statusData === 'INCOMPLETE') {
-                statusEl.className = 'font-semibold px-3 py-1 rounded-full text-sm inline-block bg-red-100 text-red-800 border border-red-200';
+                statusEl.className = 'font-semibold px-3 py-1 rounded-full text-sm inline-block bg-orange-100 text-orange-800 border border-orange-200';
             } else if (statusData === 'ERROR') {
                 statusEl.className = 'font-semibold px-3 py-1 rounded-full text-sm inline-block bg-red-600 text-white border border-red-700';
-            } else {
+            } else if (statusData === 'AUDITING') {
                 statusEl.className = 'font-semibold px-3 py-1 rounded-full text-sm inline-block bg-blue-100 text-blue-800 border border-blue-200';
+            } else if (statusData === 'RETRIEVING') {
+                statusEl.className = 'font-semibold px-3 py-1 rounded-full text-sm inline-block bg-purple-100 text-purple-800 border border-purple-200 animate-pulse';
+            } else {
+                statusEl.className = 'font-semibold px-3 py-1 rounded-full text-sm inline-block bg-gray-100 text-gray-800 border border-gray-200';
             }
         }
 
@@ -163,11 +291,32 @@
                 document.getElementById('btn-text').innerText = t.loadingBtn;
             }
 
+            const manualSpinner = document.getElementById('manual-loading-spinner');
+            if (manualSpinner.classList.contains('hidden')) {
+                document.getElementById('manual-btn-text').innerText = t.btnRetrieve;
+            } else {
+                document.getElementById('manual-btn-text').innerText = t.msgRetrieving;
+            }
+
             document.getElementById('result-title').innerText = t.resultTitle;
             document.getElementById('lbl-item').innerText = t.lblItem;
             document.getElementById('lbl-hscode').innerText = t.lblHsCode;
             document.getElementById('lbl-weight').innerText = t.lblWeight;
             document.getElementById('lbl-status').innerText = t.lblStatus;
+
+            document.getElementById('compliance-title').innerText = t.complianceTitle;
+            document.getElementById('lbl-compliance-ctx').innerText = t.lblComplianceCtx;
+            document.getElementById('lbl-retrieved-regs').innerText = t.lblRetrievedRegs;
+            document.getElementById('lbl-error-log').innerText = t.lblErrorLog;
+
+            document.getElementById('manual-title').innerText = t.manualTitle;
+            document.getElementById('lbl-manual-item').innerText = t.lblManualItem;
+            document.getElementById('lbl-manual-hscode').innerText = t.lblManualHsCode;
+            document.getElementById('lbl-manual-import').innerText = t.lblManualImport;
+            document.getElementById('lbl-manual-export').innerText = t.lblManualExport;
+            
+            document.getElementById('lbl-manual-ctx').innerText = t.lblComplianceCtx;
+            document.getElementById('lbl-manual-regs').innerText = t.lblRetrievedRegs;
 
             // Re-render the status badge to update the translation
             const currentStatus = document.getElementById('res-status').getAttribute('data-status');
@@ -178,6 +327,79 @@
                     if (displayStatusRaw) displayObj = JSON.parse(displayStatusRaw);
                 } catch(e) {}
                 updateStatusUI(currentStatus, displayObj);
+            }
+        }
+
+        function renderRegulations(regs, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            const t = translations[currentLang];
+            
+            if (!regs || regs.length === 0) {
+                container.innerHTML = `<p class="text-sm text-gray-500 italic">${t.msgNoMatch}</p>`;
+                return;
+            }
+
+            regs.forEach(reg => {
+                const regEl = document.createElement('div');
+                regEl.className = 'bg-white p-4 rounded border border-gray-100 shadow-sm text-sm';
+                regEl.innerHTML = `
+                    <div class="font-bold text-gray-800 mb-1">${reg.title}</div>
+                    <div class="text-gray-600 mb-2 line-clamp-2" title="${reg.content}">${reg.content}</div>
+                    <div class="flex space-x-3 text-xs">
+                        <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded">HS: ${reg.hs_code || 'N/A'}</span>
+                        <span class="bg-blue-50 text-blue-600 px-2 py-1 rounded">${t.lblCountry}: ${reg.country || 'N/A'}</span>
+                    </div>
+                `;
+                container.appendChild(regEl);
+            });
+        }
+
+        async function triggerComplianceRetrieval(sessionId, hsCode, productName) {
+            const t = translations[currentLang];
+            
+            // Update UI status to Retrieving
+            const statusEl = document.getElementById('res-status');
+            statusEl.setAttribute('data-status', 'RETRIEVING');
+            updateStatusUI('RETRIEVING', null);
+
+            document.getElementById('compliance-section').classList.remove('hidden');
+            document.getElementById('res-compliance-ctx').innerText = t.statusRetrieving;
+            document.getElementById('res-retrieved-regs').innerHTML = '';
+            document.getElementById('error-section').classList.add('hidden');
+
+            try {
+                const response = await fetch('/sentinel/retrieve', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        session_id: sessionId, 
+                        hs_code: hsCode,
+                        product_name: productName,
+                        import_country: "",
+                        export_country: ""
+                    })
+                });
+
+                if (!response.ok) throw new Error('Server returned ' + response.status);
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    document.getElementById('res-compliance-ctx').innerText = data.regulation_context || t.msgNoMatch;
+                    renderRegulations(data.retrieved_regulations, 'res-retrieved-regs');
+                    
+                    // Update status to AUDITING
+                    statusEl.setAttribute('data-status', 'AUDITING');
+                    updateStatusUI('AUDITING', {en: "Auditing", zh: "审计中", ms: "Sedang Diaudit"});
+                } else {
+                    throw new Error(data.error_log || 'Unknown error');
+                }
+            } catch (error) {
+                document.getElementById('error-section').classList.remove('hidden');
+                document.getElementById('res-error-log').innerText = error.message;
+                
+                statusEl.setAttribute('data-status', 'ERROR');
+                updateStatusUI('ERROR', null);
             }
         }
 
@@ -201,6 +423,10 @@
             resultSection.classList.remove('opacity-100');
             resultSection.classList.add('opacity-0');
             setTimeout(() => { resultSection.classList.add('hidden'); }, 300);
+            
+            // Hide sub-sections
+            document.getElementById('compliance-section').classList.add('hidden');
+            document.getElementById('error-section').classList.add('hidden');
 
             // Generate a random session ID for this request
             const sessionId = 'session_' + Math.random().toString(36).substr(2, 9);
@@ -231,18 +457,98 @@
                 // Show result section smoothly
                 setTimeout(() => {
                     resultSection.classList.remove('hidden');
-                    // slight delay to allow display:block to apply before changing opacity
                     setTimeout(() => {
                         resultSection.classList.remove('opacity-0');
                         resultSection.classList.add('opacity-100');
                     }, 50);
                 }, 300);
 
+                // Reset main button immediately after extraction so users aren't blocked
+                btnText.innerText = t.submitBtn;
+                spinner.classList.add('hidden');
+                btn.disabled = false;
+                btn.classList.remove('opacity-75', 'cursor-not-allowed');
+
+                // If we successfully extracted hs_code and item_name, trigger retrieval
+                if (data.progress.hs_code && data.progress.item_name && data.progress.hs_code !== 'N/A' && data.progress.item_name !== 'N/A') {
+                    await triggerComplianceRetrieval(sessionId, data.progress.hs_code, data.progress.item_name);
+                }
+
             } catch (error) {
                 alert('Error processing invoice: ' + error.message);
-            } finally {
-                // Reset UI state
                 btnText.innerText = t.submitBtn;
+                spinner.classList.add('hidden');
+                btn.disabled = false;
+                btn.classList.remove('opacity-75', 'cursor-not-allowed');
+            }
+        }
+
+        async function manualRetrieve() {
+            const itemName = document.getElementById('manual-item').value;
+            const hsCode = document.getElementById('manual-hscode').value;
+            const importCountry = document.getElementById('manual-import').value || "";
+            const exportCountry = document.getElementById('manual-export').value || "";
+
+            if (!itemName.trim() || !hsCode.trim()) {
+                alert("Item Name and HS Code are required!");
+                return;
+            }
+
+            const t = translations[currentLang];
+            const btnText = document.getElementById('manual-btn-text');
+            const spinner = document.getElementById('manual-loading-spinner');
+            const btn = document.getElementById('manual-submit-btn');
+            const resultSection = document.getElementById('manual-result-section');
+
+            btnText.innerText = t.msgRetrieving;
+            spinner.classList.remove('hidden');
+            btn.disabled = true;
+            btn.classList.add('opacity-75', 'cursor-not-allowed');
+            
+            resultSection.classList.remove('hidden');
+            document.getElementById('manual-res-ctx').innerText = t.msgRetrieving;
+            document.getElementById('manual-res-regs').innerHTML = '';
+
+            const sessionId = 'manual_' + Math.random().toString(36).substr(2, 9);
+
+            try {
+                // Because /sentinel/retrieve requires an existing session in DB,
+                // For a truly isolated manual retrieval, we must first create a dummy session 
+                // by calling /extract with dummy text, or the backend will throw 404 "Session not found".
+                // Since we can't change the backend, we first call /extract silently.
+                
+                await fetch('/extract', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: sessionId, text: `Dummy for manual: ${itemName}, ${hsCode}` })
+                });
+
+                const response = await fetch('/sentinel/retrieve', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        session_id: sessionId, 
+                        hs_code: hsCode,
+                        product_name: itemName,
+                        import_country: importCountry,
+                        export_country: exportCountry
+                    })
+                });
+
+                if (!response.ok) throw new Error('Server returned ' + response.status);
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    document.getElementById('manual-res-ctx').innerText = data.regulation_context || t.msgNoMatch;
+                    renderRegulations(data.retrieved_regulations, 'manual-res-regs');
+                } else {
+                    throw new Error(data.error_log || 'Unknown error');
+                }
+            } catch (error) {
+                alert('Manual Retrieval Error: ' + error.message);
+                document.getElementById('manual-res-ctx').innerText = error.message;
+            } finally {
+                btnText.innerText = t.btnRetrieve;
                 spinner.classList.add('hidden');
                 btn.disabled = false;
                 btn.classList.remove('opacity-75', 'cursor-not-allowed');
