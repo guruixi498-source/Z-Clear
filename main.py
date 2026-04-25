@@ -122,3 +122,48 @@ def get_session(session_id: str, db: Session = Depends(get_db)):
         "progress": progress_dict,
         "display_status": STATUS_MAPPING.get(state.status, {})
     }
+
+from agents.sentinel_agent import SentinelAgent
+
+class RetrieveRequest(BaseModel):
+    session_id: str
+    hs_code: str
+    product_name: str
+    import_country: str
+    export_country: str
+
+@app.post("/sentinel/retrieve")
+def retrieve_regulations(request: RetrieveRequest, db: Session = Depends(get_db)):
+    state = db.query(database.SessionState).filter(database.SessionState.session_id == request.session_id).first()
+    if not state:
+        raise HTTPException(status_code=404, detail="Session not found")
+    
+    agent = SentinelAgent(db)
+    try:
+        result = agent.execute(
+            hs_code=request.hs_code,
+            product_name=request.product_name,
+            import_country=request.import_country,
+            export_country=request.export_country
+        )
+        
+        state.regulation_context = result["compliance_context"]
+        database.update_session_status(db, request.session_id, "AUDITING")
+        db.refresh(state)
+        
+        return {
+            "status": "success",
+            "session_id": request.session_id,
+            "regulation_context": result["compliance_context"],
+            "retrieved_regulations": result["retrieved_regulations"]
+        }
+    except Exception as e:
+        error_msg = str(e)
+        state.error_log = error_msg
+        database.update_session_status(db, request.session_id, "ERROR")
+        db.refresh(state)
+        return {
+            "status": "error",
+            "session_id": request.session_id,
+            "error_log": error_msg
+        }

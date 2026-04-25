@@ -10,11 +10,11 @@ def test_extracted_data_model():
     assert data.hs_code == "7304"
     assert data.weight == "500kg"
 
-@patch('agents.extractor.ZhipuAI')
-def test_extract_info_mocked(mock_zhipu):
+@patch('agents.extractor.OpenAI')
+def test_extract_info_mocked(mock_openai):
     # Setup mock response
     mock_client = MagicMock()
-    mock_zhipu.return_value = mock_client
+    mock_openai.return_value = mock_client
     
     mock_response = MagicMock()
     mock_response.choices = [
