@@ -206,13 +206,16 @@
             const sessionId = 'session_' + Math.random().toString(36).substr(2, 9);
 
             try {
-                const response = await fetch('/process', {
+                const response = await fetch('/extract', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ session_id: sessionId, text: text })
                 });
 
-                if (!response.ok) throw new Error('Server returned ' + response.status);
+                const contentType = response.headers.get("content-type");
+                if (!response.ok || !contentType || !contentType.includes("application/json")) {
+                    throw new Error("接口返回异常：非预期的响应格式或请求失败");
+                }
 
                 const data = await response.json();
                 
