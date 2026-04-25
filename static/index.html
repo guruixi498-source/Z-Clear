@@ -381,7 +381,16 @@
                     })
                 });
 
-                if (!response.ok) throw new Error('Server returned ' + response.status);
+                if (!response.ok) {
+                    throw new Error('Server returned ' + response.status);
+                }
+
+                // Protect against HTML or invalid JSON
+                const contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    throw new Error("接口请求异常，请检查后端服务");
+                }
+
                 const data = await response.json();
 
                 if (data.status === 'success') {
@@ -438,7 +447,14 @@
                     body: JSON.stringify({ session_id: sessionId, text: text })
                 });
 
-                if (!response.ok) throw new Error('Server returned ' + response.status);
+                if (!response.ok) {
+                    throw new Error('Server returned ' + response.status);
+                }
+
+                const contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    throw new Error("接口请求异常，请检查后端服务");
+                }
 
                 const data = await response.json();
                 
@@ -535,7 +551,15 @@
                     })
                 });
 
-                if (!response.ok) throw new Error('Server returned ' + response.status);
+                if (!response.ok) {
+                    throw new Error('Server returned ' + response.status);
+                }
+
+                const contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    throw new Error("接口请求异常，请检查后端服务");
+                }
+
                 const data = await response.json();
 
                 if (data.status === 'success') {
@@ -545,7 +569,7 @@
                     throw new Error(data.error_log || 'Unknown error');
                 }
             } catch (error) {
-                alert('Manual Retrieval Error: ' + error.message);
+                // Don't use alert to block UI. Display in the context area.
                 document.getElementById('manual-res-ctx').innerText = error.message;
             } finally {
                 btnText.innerText = t.btnRetrieve;
