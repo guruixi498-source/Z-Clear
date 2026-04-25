@@ -206,7 +206,7 @@
             const sessionId = 'session_' + Math.random().toString(36).substr(2, 9);
 
             try {
-                const response = await fetch('/extract', {
+                const response = await fetch('/process', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ session_id: sessionId, text: text })
