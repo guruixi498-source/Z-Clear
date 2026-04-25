@@ -1,5 +1,13 @@
 from sqlalchemy import create_engine, Column, Integer, String, Text
+import sqlalchemy.types as types
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
+
+class VectorType(types.UserDefinedType):
+    def __init__(self, dim):
+        self.dim = dim
+        
+    def get_col_spec(self):
+        return f"VECTOR({self.dim})"
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./zclear.db"
 
@@ -22,6 +30,18 @@ class SessionState(Base):
     extracted_json = Column(Text, nullable=True) # Store extracted structured data
     audit_report = Column(Text, nullable=True)   # Store audit report
     progress = Column(Text, default="{}")        # Storing agent progress as JSON string
+    error_log = Column(Text, nullable=True)      # Store error logs
+
+class ComplianceRegulation(Base):
+    __tablename__ = "compliance_regulation"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String(255))
+    content = Column(Text)
+    hs_code = Column(String(50), index=True)
+    applicable_country = Column(String(100), index=True)
+    vector_data = Column(VectorType(2048))  # For embedding-3 models which have 2048 dimensions or 1536
+
 
 def update_session_status(db: Session, session_id: str, new_status: str):
     """
